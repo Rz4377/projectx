@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  uid              String         @id @unique
+  name             String
+  profilePic       String?        
+  email            String         @unique
+  createdAt        DateTime       @default(now())
+  userId           String         @unique
+  comments         Comment[]
+  friendsOf        FriendList[]   @relation("UserAsFriendOf")
+  friends          FriendList[]   @relation("UserAsFriend")
+  receivedMessages Message[]      @relation("ReceiverMessages")
+  sentMessages     Message[]      @relation("SenderMessages")
+  posts            Post[]
+  postReactions    PostReaction[]
+  conversations    Conversation[] @relation("ConversationParticipants")
+}
+
+model FriendList {
+  id          Int     @id @default(autoincrement())
+  ReqAccepted Boolean
+  friendUid   String
+  userUid     String
+  friend      User    @relation("UserAsFriendOf", fields: [friendUid], references: [uid])
+  user        User    @relation("UserAsFriend", fields: [userUid], references: [uid])
+
+  @@unique([userUid, friendUid])
+}
+
+model Conversation {
+  id           Int       @id @default(autoincrement())
+  messages     Message[]
+  participants User[]    @relation("ConversationParticipants")
+}
+
+model Message {
+  id             Int          @id @default(autoincrement())
+  content        String
+  sentAt         DateTime     @default(now())
+  conversationId Int
+  receiverUid    String
+  senderUid      String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  receiver       User         @relation("ReceiverMessages", fields: [receiverUid], references: [uid], onDelete: Cascade)
+  sender         User         @relation("SenderMessages", fields: [senderUid], references: [uid], onDelete: Cascade)
+}
+
+model Post {
+  createdAt    DateTime         @default(now())
+  uid          String
+  projectId    String           @id @unique @default(cuid())
+  projectTitle String           @unique
+  comments     Comment[]
+  user         User             @relation(fields: [uid], references: [uid])
+  projectDesc  PostDescription?
+  reactions    PostReaction[]
+  projectRelated Boolean        @default(false)
+  @@unique([uid, projectTitle])
+}
+
+model PostDescription {
+  id          Int     @id @default(autoincrement())
+  postImage   String?
+  postVideo   String?
+  projectId   String  @unique
+  description String
+  githubLink  String?
+  liveLink    String?
+  post        Post    @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+}
+
+model PostReaction {
+  id        Int    @id @default(autoincrement())
+  uid       String
+  upvotes   Int    @default(0)
+  downvotes Int    @default(0)
+  projectId String
+  post      Post   @relation(fields: [projectId], references: [projectId])
+  user      User   @relation(fields: [uid], references: [uid])
+
+  @@unique([projectId,uid])
+}
+
+model Comment {
+  commentId Int      @id @default(autoincrement())
+  uid       String
+  content   String
+  createdAt DateTime @default(now())
+  projectId String
+  post      Post     @relation(fields: [projectId], references: [projectId])
+  user      User     @relation(fields: [uid], references: [uid])
+}
