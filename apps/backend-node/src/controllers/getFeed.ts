@@ -4,6 +4,10 @@ import {Request , Response} from "express";
 export default async function getFeed(req:Request, res:Response){
     const { projectRelated , search} = req.body;
 
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
     try{
         const response = await prisma.post.findMany({
             where:{
@@ -22,19 +26,44 @@ export default async function getFeed(req:Request, res:Response){
                 ],
             },
             include: {
+                projectDesc:true,
                 reactions: true, 
-            }
+                user:{
+                    select:{
+                        uid:true,
+                        name:true,
+                        profilePic:true,
+                        userId:true,
+                    }
+                },
+                comments:true
+            },
+            skip,
+            take:limit
         })
 
-        const sortedPosts = response.sort((a, b) => {
-            const upvotesA = a.reactions[0]?.upvotes ?? 0;
-            const upvotesB = b.reactions[0]?.upvotes ?? 0;
-            return upvotesB - upvotesA; 
+        const postsWithReactionCount = response.map((post) => {
+            const { upvotes, downvotes } = post.reactions.reduce(
+                (acc, reaction) => {
+                    acc.upvotes += reaction.upvotes;
+                    acc.downvotes += reaction.downvotes;
+                    return acc;
+                },
+                { upvotes: 0, downvotes: 0 }
+            );
+
+            return {
+                ...post,
+                totalUpvotes: upvotes,
+                totalDownvotes: downvotes,
+            };
         });
-          
-        console.log(sortedPosts);
+
+        const sortedPosts = postsWithReactionCount.sort(
+            (a, b) => b.totalUpvotes - a.totalUpvotes
+        );
         res.status(200).json({
-            posts:response
+            posts:postsWithReactionCount
         })
     }
     catch(error:any){

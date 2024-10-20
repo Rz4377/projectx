@@ -43,8 +43,8 @@ export const deleteSchema  = z.object({
 export const updateReactionSchema = z.object({
     projectId: z.string(),
     uid:z.string(),
-    upvote: z.boolean().optional(),
-    downvote: z.boolean().optional()
+    upvote: z.boolean(),
+    downvote: z.boolean()
 })
 
 export const addComments = z.object({

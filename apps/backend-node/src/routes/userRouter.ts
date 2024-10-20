@@ -6,6 +6,7 @@ import deletePost from "../controllers/Post/deletePost";
 import updatePost from "../controllers/Post/updatePost";
 import updateReactions from "../controllers/Post/updateReaction";
 import addComment from "../controllers/Post/addComment";
+import postReactionDetails from "../controllers/postReactionDetails";
 
 const userRouter = express.Router();
 
@@ -14,7 +15,7 @@ const userRouter = express.Router();
 // signup route 
 userRouter.post("/signup",Signup)
 //get post
-userRouter.get("/getFeed",getFeed);
+userRouter.post("/getFeed",getFeed);
 
 // protected route 
 
@@ -28,5 +29,7 @@ userRouter.post("/deletePost",deletePost);
 userRouter.post("/updateReaction",updateReactions);
 //add comments
 userRouter.post("/addcomments",addComment);
+//getUser's upvotes and personal details
+userRouter.post("/getPostReactionDetails",postReactionDetails);
 
 export default userRouter;

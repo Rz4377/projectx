@@ -28,7 +28,13 @@ export default async function createPost(req:Request, res:Response){
                         githubLink: projectDesc.githubLink,
                         liveLink: projectDesc.liveLink,
                     }
-                } , 
+                },
+                comments:{
+                    
+                },
+                reactions:{
+
+                }
             }
         })
         console.log(response);

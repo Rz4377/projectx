@@ -20,8 +20,8 @@ export default async function updateReactions(req: Request, res: Response) {
                 projectId_uid: { projectId, uid }, 
             },
             update: {
-                upvotes: upvote ? { increment: 1 } : { decrement: 1 },
-                downvotes: downvote ? { increment: 1 } : { decrement: 1 },
+                upvotes: upvote ?1 : 0,
+                downvotes: downvote ?1:0
             },
             create: {
                 projectId,
@@ -29,8 +29,8 @@ export default async function updateReactions(req: Request, res: Response) {
                 upvotes: upvote ? 1 : 0,
                 downvotes: downvote ? 1 : 0,
             },
-          });
-
+        });
+        console.log("vote updated successfully")
         res.status(200).json({
         msg: "Vote updated successfully",
         reaction: existingReaction,

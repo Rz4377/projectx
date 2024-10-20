@@ -13,6 +13,6 @@
       "@repo/db": ["../../packages/database/dist"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "dist/seed.mjs"],
   "exclude": ["node_modules", "dist"]
 }
