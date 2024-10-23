@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import { useDarkMode } from '../components/theme-provider';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function Signup() {
   const navigate = useNavigate();
   const { isDarkMode } = useDarkMode();
@@ -37,7 +39,7 @@ export default function Signup() {
     }
     try {
       const response = await axios.post(
-        `https://api.tallentgallery.online/api/v1/user/userId`,
+        `${API_URL}/api/v1/user/userId`,
         { userId }
       );
       if (response.data.exists) {
@@ -77,7 +79,7 @@ export default function Signup() {
 
       // Call backend /signup endpoint5
       await axios.post(
-        `https://api.tallentgallery.online/api/v1/user/signup`,
+        `${API_URL}/api/v1/user/signup`,
         signupData
       );
 

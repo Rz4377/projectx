@@ -1,4 +1,4 @@
-import { FaHome, FaPen, FaBook, FaUserAlt } from 'react-icons/fa';
+import { FaHome, FaPen, FaBook, FaUserAlt , FaUserPlus , FaFacebookMessenger , FaBell} from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 export default function Sidebar() {
@@ -7,7 +7,10 @@ export default function Sidebar() {
     { icon: FaHome, label: 'Home', route: '/home' },
     { icon: FaBook, label: 'Posts', route: '/feed' },
     { icon: FaPen, label: 'Create Posts', route: '/createPosts' },
-    { icon: FaUserAlt, label: 'My Posts', route: '/myposts' },
+    { icon: FaUserAlt, label: 'My posts', route: '/myposts' },
+    { icon: FaUserPlus, label: 'Add Friends', route: '/addfriends' },
+    { icon: FaFacebookMessenger, label: 'Messages', route: '/messages' },
+    { icon: FaBell, label: 'Notifications', route: '/notification' },
   ];
 
   return (

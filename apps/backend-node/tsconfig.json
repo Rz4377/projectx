@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "CommonJS",
+    "moduleResolution": "node",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -11,8 +12,9 @@
     "baseUrl": ".",
     "paths": {
       "@repo/db": ["../../packages/database/dist"]
-    }
+    },
+    "types": ["node", "express", "multer"]
   },
-  "include": ["src/**/*", "dist/seed.mjs"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

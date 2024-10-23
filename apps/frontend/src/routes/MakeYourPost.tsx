@@ -1,14 +1,18 @@
 // MakeYourPost.tsx
+
 import axios from "axios";
 import { getAuth } from "firebase/auth";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function MakeYourPost() {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [github, setGithub] = useState<string>("");
   const [liveLink, setLiveLink] = useState<string>("");
+  const [projectRelated, setProjectRelated] = useState<boolean>(false); 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
@@ -19,7 +23,6 @@ export default function MakeYourPost() {
   const auth = getAuth();
   const navigate = useNavigate();
 
-  // Handle file drop for images/videos
   const handleFileDrop = (
     event: React.DragEvent<HTMLDivElement>,
     type: "image" | "video"
@@ -32,14 +35,14 @@ export default function MakeYourPost() {
         setImageFile(file);
         setImagePreview(URL.createObjectURL(file));
       } else {
-        alert(`Please drop a valid image file (PNG or JPEG).`);
+        alert("Please drop a valid image file (PNG or JPEG).");
       }
     } else if (type === "video") {
       if (file && (file.type === "video/mp4" || file.type === "video/webm")) {
         setVideoFile(file);
         setVideoPreview(URL.createObjectURL(file));
       } else {
-        alert(`Please drop a valid video file (MP4 or WebM).`);
+        alert("Please drop a valid video file (MP4 or WebM).");
       }
     }
   };
@@ -77,12 +80,12 @@ export default function MakeYourPost() {
 
     try {
       if (title.trim() === "" || description.trim() === "") {
-        alert("Please fill the mandatory fields.");
+        alert("Please fill all mandatory fields.");
         setIsSubmitting(false);
         return;
       }
 
-      // doing this to validate URLs
+      // Validate URLs
       const urlPattern = new RegExp(
         "^(https?:\\/\\/)?" + // Protocol
           "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // Domain name
@@ -104,33 +107,38 @@ export default function MakeYourPost() {
       }
 
       const idToken = (await auth.currentUser?.getIdToken()) || null;
-      console.log(idToken)
+      const uid = auth.currentUser?.uid || "";
 
-      if (idToken) {
+      if (idToken && uid) {
         const formData = new FormData();
-        formData.append("title", title);
-        formData.append("description", description);
-        formData.append("github", github);
-        formData.append("liveLink", liveLink);
+        formData.append("uid", uid);
+        formData.append("projectTitle", title);
+        formData.append("projectRelated", projectRelated.toString()); // Convert boolean to string
 
+        // Create a JSON object for projectDesc
+        const projectDesc = {
+          description: description,
+          githubLink: github,
+          liveLink: liveLink,
+        };
+
+        formData.append("projectDesc", JSON.stringify(projectDesc));
+
+        // Append files if they exist
         if (imageFile) {
-          formData.append("imageFile", imageFile);
+          formData.append("imageFile", imageFile); // Changed from 'postImage' to 'imageFile'
         }
-
+    
         if (videoFile) {
-          formData.append("videoFile", videoFile);
+          formData.append("videoFile", videoFile); // Changed from 'postVideo' to 'videoFile'
         }
 
-        await axios.post(
-          `https://api.tallentgallery.online/api/v1/user/createPosts`,
-          formData,
-          {
-            headers: {
+        await axios.post(`${API_URL}/api/v1/user/createPost`, formData, {
+          headers: {
               Authorization: `Bearer ${idToken}`,
               "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+          },
+        });
 
         setSuccess(true);
 
@@ -138,11 +146,13 @@ export default function MakeYourPost() {
           navigate("/feed");
         }, 2000);
       } else {
-        throw new Error("idToken not defined");
+        throw new Error("User not authenticated");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(`Error: ${error}`);
-      setError("Failed to create post. make sure you have no duplicate title present.");
+      setError(
+        "Failed to create post. Make sure you have no duplicate titles and all required fields are filled."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -165,154 +175,183 @@ export default function MakeYourPost() {
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 flex items-center justify-center w-full  h-full pt-8 px-2">
-        <div  className="max-w-3xl flex items-center justify-center ">
-            <form
-                onSubmit={handleCreatePost}
-                className="flex flex-col space-y-6 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg w-full"
+    <div className="bg-gray-50 dark:bg-gray-900 flex items-center justify-center w-full h-full pt-8 px-2">
+      <div className="max-w-3xl flex items-center justify-center">
+        <form
+          onSubmit={handleCreatePost}
+          className="flex flex-col space-y-6 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg w-full"
+        >
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            Create a New Post
+          </h1>
+
+          {/* Title Input */}
+          <input
+            className="border-2 p-2 w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            type="text"
+            placeholder="Project title"
+            required
+            disabled={isSubmitting}
+          />
+
+          {/* Description Input */}
+          <textarea
+            className="border-2 p-2 w-full h-24 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Project description"
+            required
+            disabled={isSubmitting}
+          ></textarea>
+
+          {/* GitHub Link Input */}
+          <input
+            className="border-2 p-2 w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={github}
+            onChange={(e) => setGithub(e.target.value)}
+            type="text"
+            placeholder="Project GitHub link (optional)"
+            disabled={isSubmitting}
+          />
+
+          {/* Live Link Input */}
+          <input
+            className="border-2 p-2 w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={liveLink}
+            onChange={(e) => setLiveLink(e.target.value)}
+            type="text"
+            placeholder="Project live link (optional)"
+            disabled={isSubmitting}
+          />
+
+          {/* Project Related Checkbox */}
+          <div className="mt-4 flex items-center">
+            <input
+              type="checkbox"
+              id="projectRelated"
+              checked={projectRelated}
+              onChange={(e) => setProjectRelated(e.target.checked)}
+              disabled={isSubmitting}
+              className="mr-2"
+            />
+            <label
+              htmlFor="projectRelated"
+              className="text-gray-700 dark:text-gray-200"
             >
-                <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                Create a New Post
-                </h1>
+              Project Related
+            </label>
+          </div>
 
-                <input
-                className="border-2 p-2 w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onChange={(e) => setTitle(e.target.value)}
-                type="text"
-                placeholder="Project title"
-                required
-                disabled={isSubmitting}
-                />
-                <input
-                className="border-2 p-2 w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onChange={(e) => setDescription(e.target.value)}
-                type="text"
-                placeholder="Project description"
-                required
-                disabled={isSubmitting}
-                />
-                <input
-                className="border-2 p-2 w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onChange={(e) => setGithub(e.target.value)}
-                type="text"
-                placeholder="Project GitHub link (optional)"
-                disabled={isSubmitting}
-                />
-                <input
-                className="border-2 p-2 w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onChange={(e) => setLiveLink(e.target.value)}
-                type="text"
-                placeholder="Project live link (optional)"
-                disabled={isSubmitting}
-                />
-
-                {/* Drag and Drop Image */}
-                <div
-                onDrop={(event) => handleFileDrop(event, "image")}
-                onDragOver={(event) => event.preventDefault()}
-                className="border-2 border-dashed border-gray-400 dark:border-gray-600 p-4 w-full text-center mt-2 bg-gray-100 dark:bg-gray-800 rounded-md"
-                >
-                {imageFile ? (
-                    <div className="flex items-center justify-between">
-                    <p className="text-gray-700 dark:text-gray-300">
-                        {imageFile.name}
-                    </p>
-                    <div className="flex space-x-2">
-                        <button
-                        type="button"
-                        className="text-blue-500 underline"
-                        onClick={() => openPreview(imagePreview)}
-                        >
-                        Show Preview
-                        </button>
-                        <button
-                        type="button"
-                        className="text-red-600"
-                        onClick={() => removeFile("image")}
-                        >
-                        X
-                        </button>
-                    </div>
-                    </div>
-                ) : (
-                    <p className="text-gray-700 dark:text-gray-300">
-                    Drag and drop an image here (PNG or JPEG)
-                    </p>
-                )}
+          {/* Drag and Drop Image */}
+          <div
+            onDrop={(event) => handleFileDrop(event, "image")}
+            onDragOver={(event) => event.preventDefault()}
+            className="border-2 border-dashed border-gray-400 dark:border-gray-600 p-4 w-full text-center mt-2 bg-gray-100 dark:bg-gray-800 rounded-md"
+          >
+            {imageFile ? (
+              <div className="flex items-center justify-between">
+                <p className="text-gray-700 dark:text-gray-300">
+                  {imageFile.name}
+                </p>
+                <div className="flex space-x-2">
+                  <button
+                    type="button"
+                    className="text-blue-500 underline"
+                    onClick={() => openPreview(imagePreview)}
+                  >
+                    Show Preview
+                  </button>
+                  <button
+                    type="button"
+                    className="text-red-600"
+                    onClick={() => removeFile("image")}
+                  >
+                    X
+                  </button>
                 </div>
+              </div>
+            ) : (
+              <p className="text-gray-700 dark:text-gray-300">
+                Drag and drop an image here (PNG or JPEG)
+              </p>
+            )}
+          </div>
 
-                {/* Image File Upload */}
-                <input
-                type="file"
-                accept="image/png, image/jpeg"
-                className="text-gray-700 dark:text-gray-300 mt-2"
-                onChange={(e) => handleFileSelect(e, "image")}
-                disabled={isSubmitting}
-                />
+          {/* Image File Upload */}
+          <input
+            type="file"
+            accept="image/png, image/jpeg"
+            className="text-gray-700 dark:text-gray-300 mt-2"
+            onChange={(e) => handleFileSelect(e, "image")}
+            disabled={isSubmitting}
+          />
 
-                {/* Drag and Drop Video */}
-                <div
-                onDrop={(event) => handleFileDrop(event, "video")}
-                onDragOver={(event) => event.preventDefault()}
-                className="border-2 border-dashed border-gray-400 dark:border-gray-600 p-4 w-full text-center mt-2 bg-gray-100 dark:bg-gray-800 rounded-md"
-                >
-                {videoFile ? (
-                    <div className="flex items-center justify-between">
-                    <p className="text-gray-700 dark:text-gray-300">
-                        {videoFile.name}
-                    </p>
-                    <div className="flex space-x-2">
-                        <button
-                        type="button"
-                        className="text-blue-500 underline"
-                        onClick={() => openPreview(videoPreview)}
-                        >
-                        Show Preview
-                        </button>
-                        <button
-                        type="button"
-                        className="text-red-600"
-                        onClick={() => removeFile("video")}
-                        >
-                        X
-                        </button>
-                    </div>
-                    </div>
-                ) : (
-                    <p className="text-gray-700 dark:text-gray-300">
-                    Drag and drop a video here (MP4 or WebM)
-                    </p>
-                )}
+          {/* Drag and Drop Video */}
+          <div
+            onDrop={(event) => handleFileDrop(event, "video")}
+            onDragOver={(event) => event.preventDefault()}
+            className="border-2 border-dashed border-gray-400 dark:border-gray-600 p-4 w-full text-center mt-2 bg-gray-100 dark:bg-gray-800 rounded-md"
+          >
+            {videoFile ? (
+              <div className="flex items-center justify-between">
+                <p className="text-gray-700 dark:text-gray-300">
+                  {videoFile.name}
+                </p>
+                <div className="flex space-x-2">
+                  <button
+                    type="button"
+                    className="text-blue-500 underline"
+                    onClick={() => openPreview(videoPreview)}
+                  >
+                    Show Preview
+                  </button>
+                  <button
+                    type="button"
+                    className="text-red-600"
+                    onClick={() => removeFile("video")}
+                  >
+                    X
+                  </button>
                 </div>
+              </div>
+            ) : (
+              <p className="text-gray-700 dark:text-gray-300">
+                Drag and drop a video here (MP4 or WebM)
+              </p>
+            )}
+          </div>
 
-                {/* Video File Upload */}
-                <input
-                type="file"
-                accept="video/mp4, video/webm"
-                className="text-gray-700 dark:text-gray-300 mt-2"
-                onChange={(e) => handleFileSelect(e, "video")}
-                disabled={isSubmitting}
-                />
+          {/* Video File Upload */}
+          <input
+            type="file"
+            accept="video/mp4, video/webm"
+            className="text-gray-700 dark:text-gray-300 mt-2"
+            onChange={(e) => handleFileSelect(e, "video")}
+            disabled={isSubmitting}
+          />
 
-                <button
-                className="border-2 p-2 w-1/4 mt-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
-                type="submit"
-                disabled={isSubmitting}
-                >
-                {isSubmitting ? "Submitting..." : "Submit"}
-                </button>
+          {/* Submit Button */}
+          <button
+            className="border-2 p-2 w-1/4 mt-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </button>
 
-                {/* Success Message */}
-                {success && (
-                <div className="text-green-600 mt-2">
-                    Post created successfully! Redirecting to feed...
-                </div>
-                )}
+          {/* Success Message */}
+          {success && (
+            <div className="text-green-600 mt-2">
+              Post created successfully! Redirecting to feed...
+            </div>
+          )}
 
-                {/* Error Message */}
-                {error && <div className="text-red-600 mt-2">{error}</div>}
-            </form>
-        </div>
+          {/* Error Message */}
+          {error && <div className="text-red-600 mt-2">{error}</div>}
+        </form>
+      </div>
     </div>
   );
 }

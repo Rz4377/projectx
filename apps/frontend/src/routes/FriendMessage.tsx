@@ -1,52 +1,60 @@
 import axios from "axios";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { Spinner } from "../components/Spinner";
-import { useNavigate } from "react-router-dom";
+
 
 interface friendType {
     friendId: string;
     friendUid: string;
     friendName: string;
 }
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function FriendMessage() {
     const [friendList, setFriendList] = useState<friendType[]>([]);
     const [filteredFriends, setFilteredFriends] = useState<friendType[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>("");
-    const [displayError, setDisplayError] = useState<string>("");
+    const [displayError, setDisplayError] = useState<null | string>(null);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+    const [uid ,setUid] = useState<string | null>(null);
+
     useEffect(() => {
-        const getFrndList = async () => {
+        const auth = getAuth();
+    
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          if (user) {
             try {
-                const auth = getAuth();
-                const idToken = await auth.currentUser?.getIdToken();
-                if (!idToken) {
-                    setDisplayError("Unauthorized");
-                    setLoading(false);
-                    return;
+              const idToken = await user.getIdToken();
+              
+              const userUid = user.uid;
+              setUid(userUid);
+    
+              const response = await axios.post(
+                `${API_URL}/api/v1/user/getFriendList`,
+                { uid:userUid }, 
+                {
+                  headers: {
+                    Authorization: `Bearer ${idToken}`,
+                  },
                 }
-                const response = await axios.post(
-                    "http://localhost:3000/api/v1/user/friendList",
-                    { }, 
-                    {
-                        headers: {
-                            Authorization: `Bearer ${idToken}`,
-                        },
-                    }
-                );
-                setFriendList(response.data);
-                setFilteredFriends(response.data);
+              );
+              setFriendList(response.data);
+              setFilteredFriends(response.data);
             } catch (error) {
-                console.log("Error fetching friend list", error);
-                setDisplayError("Your friendList is empty");
+              console.log("Error fetching friend list", error);
+              setDisplayError("Your friend list is empty");
             } finally {
-                setLoading(false);
+              setLoading(false);
             }
-        };
-        getFrndList();
-    }, []);
+          } else {
+            setDisplayError("User not authenticated.");
+            setLoading(false);
+          }
+        });
+    
+        return () => unsubscribe(); // Unsubscribe from the listener when component unmounts
+      }, [uid]);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const query = e.target.value.toLowerCase();
@@ -128,7 +136,7 @@ export default function FriendMessage() {
                                                 </p>
                                             </div>
                                         </div>
-                                        <button onClick={()=> navigate(`/conversation?fid=${friend.friendUid}`)} className="px-4 py-2 bg-green-500 text-white font-semibold rounded-md shadow hover:bg-green-600 transition-all duration-300 dark:bg-blue-700 dark:hover:bg-blue-800">
+                                        <button onClick={()=> window.location.href =(`/conversation?fid=${friend.friendUid}`)} className="px-4 py-2 bg-green-500 text-white font-semibold rounded-md shadow hover:bg-green-600 transition-all duration-300 dark:bg-blue-700 dark:hover:bg-blue-800">
                                             Message
                                         </button>
                                     </div>

@@ -3,7 +3,7 @@ import {Request , Response} from "express";
 import { signupSchema } from "../validations/zodSchemas";
 
 export default async function Signup(req:Request, res:Response){
-    const {name ,uid , email , userId , profilePic } = req.body;
+    const {name ,uid , email , userId } = req.body;
     const parseStatus = signupSchema.safeParse(req.body);
 
     if(!parseStatus.success){
@@ -27,7 +27,7 @@ export default async function Signup(req:Request, res:Response){
                         name , 
                         email ,
                         userId,
-                        profilePic
+                        profilePic:null
                     }
                 })
                 console.log(response);

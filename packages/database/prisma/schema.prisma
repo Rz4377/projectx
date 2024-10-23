@@ -43,11 +43,14 @@ model FriendList {
 }
 
 model Conversation {
-  id           Int       @id @default(autoincrement())
-  messages     Message[]
-  participants User[]    @relation("ConversationParticipants")
-}
+  id            Int       @id @default(autoincrement())
+  messages      Message[]
+  participants  User[]    @relation("ConversationParticipants")
+  participantA  String
+  participantB  String
 
+  @@unique([participantA, participantB])
+}
 model Message {
   id             Int          @id @default(autoincrement())
   content        String

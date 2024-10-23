@@ -1,5 +1,7 @@
 import axios from "axios";
+import { getAuth } from "firebase/auth";
 import { useEffect, useState, ChangeEvent } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface RenderCommentsProps {
     post: Post;
@@ -99,7 +101,7 @@ export default function Comment({ post, comment_list }: RenderCommentsProps) {
     const [userData, setUserData] = useState<PostReactionData | null>(null);
 
     const showComments = () => setHidden((prev) => !prev);
-
+    const navigate = useNavigate();
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) =>
         setNewCommentValue(e.target.value);
 
@@ -108,9 +110,16 @@ export default function Comment({ post, comment_list }: RenderCommentsProps) {
         setTotalDownvotes(post.totalDownvotes || 0);
         const fetchReactionDetails = async () => {
             try {
+                const idToken = await getAuth().currentUser?.getIdToken();
+                if(!idToken){
+                    return ;
+                }
                 const response = await axios.post(`${API_URL}/api/v1/user/getPostReactionDetails`, {
-                    uid: "iFaVSx", // Replace with Firebase token
                     projectId: post.projectId,
+                },{
+                    headers:{
+                        Authorization:`Bearer ${idToken}`
+                    }
                 });
                 console.log(response.data)
                 setUserData(response.data);
@@ -140,12 +149,18 @@ export default function Comment({ post, comment_list }: RenderCommentsProps) {
     
             setUpvote(newUpvote);
             setDownvote(newDownvote);
-    
+            const idToken = await getAuth().currentUser?.getIdToken();
+            if(!idToken){
+                return ;
+            }
             await axios.post(`${API_URL}/api/v1/user/updateReaction`, {
                 projectId: post.projectId,
-                uid: "iFaVSx",
                 upvote: newUpvote,
                 downvote: newDownvote,
+            },{
+                headers:{
+                    Authorization:`Bearer ${idToken}`
+                }
             });
         } catch (error) {
             console.error("Error updating reaction:", error);
@@ -168,12 +183,18 @@ export default function Comment({ post, comment_list }: RenderCommentsProps) {
     
             setDownvote(newDownvote);
             setUpvote(newUpvote);
-    
+            const idToken = await getAuth().currentUser?.getIdToken();
+            if(!idToken){
+                   return ;
+                }
             await axios.post(`${API_URL}/api/v1/user/updateReaction`, {
                 projectId: post.projectId,
-                uid: "iFaVSx",
                 upvote: newUpvote,
                 downvote: newDownvote,
+            },{
+                headers:{
+                    Authorization:`Bearer ${idToken}`
+                }
             });
         } catch (error) {
             console.error("Error updating reaction:", error);
@@ -183,14 +204,25 @@ export default function Comment({ post, comment_list }: RenderCommentsProps) {
         if (!newCommentValue) return;
 
         try {
+            const idToken = await getAuth().currentUser?.getIdToken();
+            if(!idToken){
+                   return ;
+            }
+
             await axios.post(`${API_URL}/api/v1/user/addcomments`, {
-                uid: "iFaVSx", // Replace with Firebase token
                 content: newCommentValue,
                 projectId: post.projectId,
+            },{
+                headers:{
+                    Authorization:`Bearer ${idToken}`
+                }
             });
-
+            const uid = getAuth().currentUser?.uid;
+            if(!uid){
+                return ;
+            }
             const newComment: Comment = {
-                uid: "iFaVSx",
+                uid: uid,
                 content: newCommentValue,
                 projectId: post.projectId,
             };
@@ -239,7 +271,7 @@ export default function Comment({ post, comment_list }: RenderCommentsProps) {
                         {comments.length > 0 ? (
                             comments.map((comment) => (
                                 <div key={userData?.uid} className="flex flex-col">
-                                    <div className="flex flex-row gap-3 ">
+                                    <div onClick={()=> navigate(`/profile/${userData?.user.userId}`)} className="flex flex-row gap-3 hover:cursor-pointer ">
                                         {userData && renderUserAvatar(userData.user)}
                                         <div className="flex flex-col">
                                             <div className="text-sm">{userData?.user.name}</div>

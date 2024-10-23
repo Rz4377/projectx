@@ -16,6 +16,7 @@ interface PostType {
   projectId: string;
   projectTitle: string;
   projectDesc: ProjectDescType;
+  projectRelated: boolean;
 }
 
 interface EditablePostCardProps {

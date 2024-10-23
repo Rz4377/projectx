@@ -10,6 +10,8 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import FriendMessage from "./routes/FriendMessage";
 import AddFriend from "./routes/AddFriend";
 import ConversationPage from "./routes/Conversation";
+import Notification from "./components/Notification";
+import Profile from "./routes/Profile";
 
 const App = () => {
 
@@ -26,7 +28,6 @@ const App = () => {
               
               <Route path="/signup" element={<Signup />} />
               <Route path="/signin" element={<Signin />} />
-              <Route path="/feed" element={<Posts />} />
               <Route 
               element={
                 <ProtectedRoute>
@@ -34,11 +35,15 @@ const App = () => {
                 </ProtectedRoute> 
               }
             >
+              {/* ProtectedRoute */}
+              <Route path="/feed" element={<Posts />} />
               <Route path="/createPosts" element={<CreatePosts />} />
               <Route path="/myposts" element={<UserPost />} />
               <Route path="/messages" element={<FriendMessage/>} />
               <Route path="/addFriends" element={<AddFriend/>} />
               <Route path="/conversation" element={<ConversationPage />} />
+              <Route path="/notification" element={<Notification />} />
+              <Route path="/profile/:userId" element={<Profile />} />
             </Route>
 
             <Route path="*" element={<h1>404: Page Not Found</h1>} />

@@ -26,12 +26,12 @@ export const updateSchema  = z.object({
     uid: z.string(),
     projectTitle: z.string().optional(),
     projectDesc: z.object({
-        postImage: z.string().optional().nullable(),
-        postVideo: z.string().optional().nullable(),
+        postImage: z.string().nullable().optional(),
+        postVideo: z.string().nullable().optional(),
         description: z.string().optional(),
-        githubLink: z.string().optional().nullable(),
-        liveLink: z.string().optional().nullable()
-    }).optional(),
+        githubLink: z.string().nullable().optional(),
+        liveLink: z.string().nullable().optional()
+    }),
     projectRelated: z.boolean().optional()
 })
 

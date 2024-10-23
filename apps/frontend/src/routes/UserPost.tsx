@@ -5,6 +5,8 @@ import { getAuth } from "firebase/auth";
 import EditablePostCard from "../components/EditablePostCard";
 import { Spinner } from "../components/Spinner";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 interface ProjectDescType {
   description: string;
   liveLink?: string;
@@ -16,6 +18,7 @@ interface ProjectDescType {
 interface PostType {
   projectId: string;
   projectTitle: string;
+  projectRelated: boolean;
   projectDesc: ProjectDescType;
 }
 
@@ -40,9 +43,8 @@ export default function UserPost() {
       const idToken = await auth.currentUser?.getIdToken();
       if (idToken) {
         try {
-          const response = await axios.post(
-            `https://api.tallentgallery.online/api/v1/user/userPost`,
-            {},
+          const response = await axios.get(
+            `${API_URL}/api/v1/user/userPost/${auth.currentUser?.uid}`,
             {
               headers: {
                 Authorization: `Bearer ${idToken}`,
@@ -73,7 +75,7 @@ export default function UserPost() {
     if (idToken) {
       try {
         const response = await axios.put(
-          `https://api.tallentgallery.online/api/v1/user/updatePost/${updatedPost.projectId}`,
+          `${API_URL}/api/v1/user/updatePost/${updatedPost.projectId}`,
           updatedPost,
           {
             headers: {
@@ -92,6 +94,8 @@ export default function UserPost() {
       } catch (error) {
         console.error("Error updating post:", error);
       }
+    } else {
+      setError("Unable to authenticate user");
     }
   };
 
@@ -101,7 +105,7 @@ export default function UserPost() {
     if (idToken) {
       try {
         const response = await axios.delete(
-          `https://api.tallentgallery.online/api/v1/user/deletePost/${projectId}`,
+          `${API_URL}/api/v1/user/deletePost/${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${idToken}`,
@@ -117,22 +121,24 @@ export default function UserPost() {
       } catch (error) {
         console.error("Error deleting post:", error);
       }
+    } else {
+      setError("Unable to authenticate user");
     }
   };
 
   if (loading) {
-    return (<div className="dark:bg-gray-900 bg-gray-100 w-screen h-screen flex justify-center items-center">
-      <Spinner /> 
-    </div>)
+    return (
+      <div className="dark:bg-gray-900 bg-gray-100 w-screen h-screen flex justify-center items-center">
+        <Spinner />
+      </div>
+    );
   }
 
   return (
     <>
       {!error ? (
-        <div
-          className="p-4 min-h-screen flex flex-col items-center dark:bg-gray-900 dark:text-white bg-gray-100 text-black"
-        >
-          <div className=" max-w-xl">
+        <div className="p-4 min-h-screen flex flex-col items-center dark:bg-gray-900 dark:text-white bg-gray-100 text-black">
+          <div className="max-w-xl">
             {userPosts.length > 0 ? (
               userPosts.map((post) => (
                 <EditablePostCard

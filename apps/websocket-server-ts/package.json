@@ -1,0 +1,26 @@
+{
+  "name": "websocket-server-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/server.ts",
+    "build": "tsc",
+    "serve": "node dist/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {    
+    "@repo/db": "workspace:*",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",   
+    "firebase-admin": "^12.6.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}

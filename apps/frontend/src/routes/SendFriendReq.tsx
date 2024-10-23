@@ -7,6 +7,8 @@ interface SendReqPropsType {
     friendUid: string;
 }
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function SendFriendReq({ friendUid }: SendReqPropsType) {
     const [error, setError] = useState<null | string>(null);
     const [loading, setLoading] = useState(false); 
@@ -18,18 +20,19 @@ export default function SendFriendReq({ friendUid }: SendReqPropsType) {
 
         const auth = getAuth();
         const idToken = await auth.currentUser?.getIdToken();
-        if (!idToken) {
-            setError("You are unauthorized");
-            setLoading(false);
-            return;
-        }
+        const uid = auth.currentUser?.uid
+        // if (!idToken) {
+        //     setError("You are unauthorized");
+        //     setLoading(false);
+        //     return;
+        // }
 
         try {
             const response = await axios.post(
-                "http://localhost:3000/api/v1/user/sendFriendReq",
+                `${API_URL}/api/v1/user/sendFriendReq`,
                 {
                     friendUid,
-                    uid: "srgq04V6D3gxvWkyPJ405lXfpht2", // for devlopment purposes
+                    uid, // for devlopment purposes
                 },
                 {
                     headers: {
@@ -70,10 +73,10 @@ export default function SendFriendReq({ friendUid }: SendReqPropsType) {
                 onClick={handleSendReq}
                 disabled={loading || isRequestSent}
                 className={`px-4 py-2 font-semibold rounded-md shadow transition-all duration-300
-                ${isRequestSent ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 hover:bg-green-600 dark:bg-blue-700 dark:hover:bg-blue-800"}
+                ${isRequestSent ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-800"}
                 text-white`}
             >
-                {isRequestSent ? "Request Sent" : "Add Friend"}
+                {isRequestSent ? "Request Sent" : "Follow"}
             </button>
 
             {loading && <div className="text-blue-500 mt-2"><Spinner/></div>}

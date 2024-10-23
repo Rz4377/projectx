@@ -10,6 +10,8 @@ interface userType {
     name: string;
 }
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function AddFriend() {
     const [error, setError] = useState<null | string>(null);
     const [loading, setLoading] = useState(true);
@@ -28,7 +30,6 @@ export default function AddFriend() {
         const getUsersList = async () => {
             const auth = getAuth();
             const idToken = await auth.currentUser?.getIdToken();
-            console.log(idToken)
             const currentUid = auth.currentUser?.uid;
             setUid(currentUid || ""); 
             if (!idToken) {
@@ -38,7 +39,7 @@ export default function AddFriend() {
             }
             try {
                 let response = await axios.post(
-                    "http://localhost:3000/api/v1/user/searchUser",
+                    `${API_URL}/api/v1/user/searchUser`,
                     {
                         searchedUser: searchQuery,
                     },
