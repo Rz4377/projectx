@@ -38,6 +38,12 @@ userRouter.post("/userId", UserId);
 //user Post 
 userRouter.get("/userPost/:uid" ,userPost)
 
+userRouter.get("/health",(req,res)=>{
+    res.status(200).json({
+        msg :"ok"
+    })
+})
+
 //create post
 userRouter.post("/createPost",upload.fields([{ name: 'imageFile', maxCount: 1 }, { name: 'videoFile', maxCount: 1 }]),authenticationMiddleware,createPost);
 

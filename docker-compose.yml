@@ -3,27 +3,26 @@ version: '3.8'
 services:
   node-backend:
     build:
-      context: ./apps/backend-node
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/backend-node/Dockerfile
     container_name: node_backend
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: "postgresql://postgres:tallent_password@localhost:5432/tallent_database"
-
+      DATABASE_URL: "postgresql://postgres:tallent_password@db:5432/tallent_database"
     depends_on:
       - db
 
   websocket-backend:
     build:
-      context: ./apps/websocket-server-ts
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/websocket-server-ts/Dockerfile
     container_name: websocket_backend
     ports:
       - "8080:8080"
     environment:
-      DATABASE_URL: "postgresql://postgres:tallent_password@localhost:5432/tallent_database"
-    depends_on:
+      DATABASE_URL: "postgresql://postgres:tallent_password@db:5432/tallent_database"
+    depends_on: 
       - db
 
   db:
