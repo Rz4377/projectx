@@ -3,10 +3,10 @@ import { getAuth } from "firebase/auth";
 import { useEffect, useState, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
-interface RenderCommentsProps {
-    post: Post;
-    comment_list: Comment[];
-}
+// interface RenderCommentsProps {
+//     post: Post;
+//     comment_list: Comment[];
+// }
 
 interface Comment {
     uid: string;
@@ -16,24 +16,24 @@ interface Comment {
     projectId: string;
 }
 
-interface Post {
-    projectId: string;
-    projectTitle: string;
-    createdAt: string;
-    projectDesc?: {
-        description?: string;
-        postImage?: string;
-        postVideo?: string;
-    };
-    reactions?: {
-        upvotes: number;
-        downvotes: number;
-    }[];
-    user: UserInterface;
-    comments: Comment[];
-    totalUpvotes:number;
-    totalDownvotes:number;
-}
+// interface Post {
+//     projectId: string;b
+//     projectTitle: string;
+//     createdAt: string;
+//     projectDesc?: {
+//         description?: string;
+//         postImage?: string;
+//         postVideo?: string;
+//     };
+//     reactions?: {
+//         upvotes: number;
+//         downvotes: number;
+//     }[];
+//     user: UserInterface;
+//     comments: Comment[];
+//     totalUpvotes:number;
+//     totalDownvotes:number;
+// }
 
 interface UserInterface {
     name: string;
@@ -89,7 +89,7 @@ const DownvoteIcon = ({ active }: { active: boolean }) => (
     </svg>
 );
 
-export default function Comment({ post, comment_list }: RenderCommentsProps) {
+export default function Comment({ post, comment_list }: any) {
     const [comments, setComments] = useState<Comment[]>(comment_list || []);
     const [hidden, setHidden] = useState(false);
     const [newCommentValue, setNewCommentValue] = useState("");
@@ -106,7 +106,7 @@ export default function Comment({ post, comment_list }: RenderCommentsProps) {
         setNewCommentValue(e.target.value);
 
     useEffect(()=>{
-        setTotalUpvotes(post.totalUpvotes || 0);
+        setTotalUpvotes(post.totalUpvotes || 0);  
         setTotalDownvotes(post.totalDownvotes || 0);
         const fetchReactionDetails = async () => {
             try {

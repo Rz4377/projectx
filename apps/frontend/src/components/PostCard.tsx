@@ -1,65 +1,100 @@
-import React from "react";
+import { useNavigate } from "react-router-dom";
+import Comment from "./Comment";
 
-interface ProjectDescType {
-  description: string;
-  liveLink?: string;
-  githubLink?: string;
-  postImage?: string;
-  postVideo?: string;
-}
-
-interface PostType {
+interface Post {
   projectId: string;
   projectTitle: string;
-  projectRelated: boolean;
-  projectDesc: ProjectDescType | null; // Allow projectDesc to be null
+  createdAt: string;
+  projectDesc?: {
+      description?: string;
+      postImage?: string;
+      postVideo?: string;
+  };
+  reactions?: {
+      upvotes: number;
+      downvotes: number;
+  }[];
+  user: {
+      uid: string;
+      name: string;
+      profilePic: string | null;
+      userId: string;
+  };
+  comments: Comment[];
+  totalUpvotes: number;
+  totalDownvotes: number;
 }
 
-interface PostCardProps {
-  post: PostType;
-}
+// interface PostProp {
+//   post: Post
+// }
 
-const PostCard: React.FC<PostCardProps> = ({ post }) => {
-  const { projectDesc } = post;
-
+const renderUserAvatar = (user: Post["user"]) => {
+  if (user.profilePic) {
+      return (
+          <img
+              className="w-10 h-10 rounded-full"
+              src={user.profilePic}
+              alt={`${user.name}'s profile`}
+          />
+      );
+  }
+  const firstLetter = user.name.charAt(0).toUpperCase();
   return (
-    <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded shadow">
-      {projectDesc && projectDesc.postImage ? (
-        <img
-          src={projectDesc.postImage}
-          alt={post.projectTitle}
-          className="w-full h-48 object-cover rounded"
-        />
-      ) : (
-        // Optional placeholder if no image
-        <div className="w-full h-48 bg-gray-200 rounded"></div>
-      )}
-      <h2 className="text-xl mt-2">{post.projectTitle}</h2>
-      <p className="mt-1">
-        {projectDesc ? projectDesc.description : "No description available."}
-      </p>
-      {projectDesc && projectDesc.githubLink && (
-        <a
-          href={projectDesc.githubLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-500 mt-2 block"
-        >
-          GitHub Link
-        </a>
-      )}
-      {projectDesc && projectDesc.liveLink && (
-        <a
-          href={projectDesc.liveLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-500 mt-1 block"
-        >
-          Live Link
-        </a>
-      )}
-    </div>
+      <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
+          {firstLetter}
+      </div>
   );
 };
 
-export default PostCard;
+export default function PostCard({post}:any) {
+  const navigate = useNavigate();
+  return (
+    <>
+      <div
+        key={post.projectId}
+        className="mb-8 p-4 bg-white rounded-md shadow-md dark:bg-gray-800 dark:text-white"
+      >
+        {/* User Info and Post Title */}
+        <div onClick={() => navigate(`/profile/${post.user.userId}`)} className="flex items-center gap-4 hover:cursor-pointer">
+          {renderUserAvatar(post.user)}
+          <div>
+            <h2 className="text-lg font-bold">{post.user.name}</h2>
+            <span className="text-sm text-gray-400">
+              @{post.user.userId}
+            </span>
+          </div>
+        </div>
+
+
+        {/* Post Content */}
+        {post.projectTitle && (
+          <p className="mt-4 font-semibold text-md">{post.projectTitle}</p>
+        )}
+        {post.projectDesc?.description && (
+          <p className="mt-4 text-sm">{post.projectDesc.description}</p>
+        )}
+        {post.projectDesc?.postImage && (
+          <img
+            src={post.projectDesc.postImage}
+            alt="loading..."
+            className="rounded-lg mt-2"
+          />
+        )}
+        {post.projectDesc?.postVideo && (
+          <video
+            src={post.projectDesc.postVideo}
+            controls
+            className="rounded-lg mt-2"
+          />
+        )}
+
+
+        {/* Comment and Reactions Section */}
+        <div className="flex gap-6 mt-4">
+          <Comment post={post} comment_list={post.comments} />
+        </div>
+      </div>
+    </>
+  )
+}

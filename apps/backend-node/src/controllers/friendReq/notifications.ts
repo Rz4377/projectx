@@ -35,7 +35,7 @@ export default async function notifications(req: Request, res: Response) {
         // Return the friend request data
         return res.status(200).json({
             msg: "Friend requests retrieved successfully.",
-            requests: friendRequests.map((request) => ({
+            requests: friendRequests.map((request:any) => ({
                 uid: request.user.uid,
                 userId: request.user.userId,
                 name: request.user.name,

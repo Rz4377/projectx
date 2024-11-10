@@ -171,7 +171,7 @@ export default function ConversationPage() {
           return;
         }
 
-        socket.current = new WebSocket(`ws://localhost:8080?token=${idToken}`);
+        socket.current = new WebSocket(`wss://api.tallentgallery.online:444?token=${idToken}`);
 
         socket.current.onopen = () => {
           console.log("Connected to WebSocket server");

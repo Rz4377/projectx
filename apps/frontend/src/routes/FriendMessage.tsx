@@ -79,7 +79,7 @@ export default function FriendMessage() {
     }
 
     return (
-        <div className="flex flex-col h-full dark:bg-gray-900 p-2">
+        <div className="flex flex-col h-full dark:bg-gray-900 p-2 items-center">
             <div className="max-w-md w-full">
                 {/* Search Form */}
                 <form className="mb-6">

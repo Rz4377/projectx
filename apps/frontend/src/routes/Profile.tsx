@@ -2,9 +2,9 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Spinner } from "../components/Spinner";
-import PostCard from "../components/PostCard";
 import { getAuth } from "firebase/auth";
 import SendFriendReq from "./SendFriendReq";
+import ProfileCard from "../components/ProfileCard";
 
 interface ProjectDescType {
   description: string;
@@ -153,10 +153,8 @@ export default function Profile() {
       </div>
 
       {/* Posts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4">
-        {posts.map((post) => (
-          <PostCard key={post.projectId} post={post} />
-        ))}
+      <div className="w-full px-4">
+        <ProfileCard projects={profileData.posts}/>
       </div>
     </div>
   );

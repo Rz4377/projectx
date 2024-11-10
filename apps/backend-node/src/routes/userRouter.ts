@@ -20,8 +20,6 @@ import userPost from "../controllers/userPost";
 import getProfile from "../controllers/getProfile";
 import authenticationMiddleware from "../middlewares/authMiddleware";
 
-
-
 const userRouter = express.Router();
 
 //unprotectedRoutes

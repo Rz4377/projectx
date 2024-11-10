@@ -52,6 +52,7 @@ export default async function getProfile(req: Request, res: Response) {
             userUid: true,
           },
         },
+        
       },
     });
 

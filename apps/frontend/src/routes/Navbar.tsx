@@ -46,13 +46,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
             </button>
             {/* title & logo  */}
             <div className="flex flex-row items-center">
-              <div className="b-2 p-2 rounded-full overflow-hidden"> <img className="hover:cursor-pointer" onClick={()=> navigate("/home")} src="../../assets/logo.webp" alt="" height={35} width={35} /> </div>
-              <span
-                className=" font-semibold cursor-pointer text-gray-800 dark:text-white"
-                onClick={() => navigate('/home')}
-              >
-                TalentGallery
-              </span>
+              <div className="b-2 p-2 rounded-full"> <img className=" object-cover rounded-full shadow-lg hover:scale-105 transition-transform duration-300" onClick={()=> navigate("/home")} src="../../assets/logo.webp" alt="" height={40} width={40} /> </div>
             </div>
           </div>
 

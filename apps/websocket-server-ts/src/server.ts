@@ -10,7 +10,9 @@ wss.on('connection', async (ws: WebSocket, req) => {
     console.log("Client connected");
 
     // Extract the idToken from the query parameters
-    const reqUrl = new URL(`http://localhost:8080${req.url}`);
+    // const reqUrl = new URL(`http://localhost:8080${req.url}`);
+    const reqUrl = new URL(`https://api.tallentgallery.online:444${req.url}`);
+
     const idToken = reqUrl.searchParams.get('token');
     console.log(idToken);
     

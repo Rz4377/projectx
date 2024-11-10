@@ -1,7 +1,6 @@
 import prisma from "@repo/db";
 import {Request , Response} from "express";
 
-
 export default async function getFeed(req:Request, res:Response){
    const { projectRelated , search} = req.body;
 
@@ -46,9 +45,9 @@ export default async function getFeed(req:Request, res:Response){
        })
 
 
-       const postsWithReactionCount = response.map((post) => {
+       const postsWithReactionCount = response.map((post:any) => {
            const { upvotes, downvotes } = post.reactions.reduce(
-               (acc, reaction) => {
+               (acc:any, reaction:any) => {
                    acc.upvotes += reaction.upvotes;
                    acc.downvotes += reaction.downvotes;
                    return acc;
@@ -66,10 +65,10 @@ export default async function getFeed(req:Request, res:Response){
 
 
        const sortedPosts = postsWithReactionCount.sort(
-           (a, b) => b.totalUpvotes - a.totalUpvotes
+           (a:any, b:any) => b.totalUpvotes - a.totalUpvotes
        );
        res.status(200).json({
-           posts:postsWithReactionCount
+           posts:sortedPosts
        })
    }
    catch(error:any){

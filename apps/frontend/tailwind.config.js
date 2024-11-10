@@ -6,11 +6,24 @@ export default {
   ],
   theme: {
     extend: {
-      backdropBlur: {
-        'extra': '40px', // Example custom blur size
+      fontFamily: {
+        nunito: ['Nunito', 'sans-serif'],
+      },
+      keyframes: {
+        typing: {
+          '0%': { width: '0%' },
+          '100%': { width: '100%' },
+        },
+        blink: {
+          '0%, 100%': { 'border-color': 'transparent' },
+          '50%': { 'border-color': 'black' },
+        },
+      },
+      animation: {
+        typing: 'typing 3s steps(30, end) forwards, blink 0.7s step-end infinite',
       },
     },
   },
   darkMode: 'class',
-  plugins: [],  // Remove the tailwindcss-backdrop-filter plugin
-}
+  plugins: [],
+};

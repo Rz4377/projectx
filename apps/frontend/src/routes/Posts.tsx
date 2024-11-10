@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Spinner } from "../components/Spinner";
 import Comment from "../components/Comment";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
+import PostCard from "../components/PostCard";
 
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -50,7 +51,7 @@ export default function Posts() {
    const [posts, setPosts] = useState<Post[]>([]);
 
 
-   const navigate = useNavigate();
+//    const navigate = useNavigate();
 
 
    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,23 +91,7 @@ export default function Posts() {
    }, [searchQuery, projectRelated]);
 
 
-   const renderUserAvatar = (user: Post["user"]) => {
-       if (user.profilePic) {
-           return (
-               <img
-                   className="w-10 h-10 rounded-full"
-                   src={user.profilePic}
-                   alt={`${user.name}'s profile`}
-               />
-           );
-       }
-       const firstLetter = user.name.charAt(0).toUpperCase();
-       return (
-           <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-               {firstLetter}
-           </div>
-       );
-   };
+   
 
 
    return (
@@ -144,50 +129,7 @@ export default function Posts() {
                    <Spinner />
                ) : (
                    posts.map((post) => (
-                       <div
-                           key={post.projectId}
-                           className="mb-8 p-4 bg-white rounded-md shadow-md dark:bg-gray-800 dark:text-white"
-                       >
-                           {/* User Info and Post Title */}
-                           <div onClick={()=> navigate(`/profile/${post.user.userId}`)} className="flex items-center gap-4 hover:cursor-pointer">
-                               {renderUserAvatar(post.user)}
-                               <div>
-                                   <h2 className="text-lg font-bold">{post.user.name}</h2>
-                                   <span className="text-sm text-gray-400">
-                                       @{post.user.userId}
-                                   </span>
-                               </div>
-                           </div>
-
-
-                           {/* Post Content */}
-                           {post.projectTitle && (
-                               <p className="mt-4 text-sm">{post.projectTitle}</p>
-                           )}
-                           {post.projectDesc?.description && (
-                               <p className="mt-4 text-sm">{post.projectDesc.description}</p>
-                           )}
-                           {post.projectDesc?.postImage && (
-                               <img
-                                   src={post.projectDesc.postImage}
-                                   alt="loading..."
-                                   className="rounded-lg mt-2"
-                               />
-                           )}
-                           {post.projectDesc?.postVideo && (
-                               <video
-                                   src={post.projectDesc.postVideo}
-                                   controls
-                                   className="rounded-lg mt-2"
-                               />
-                           )}
-
-
-                           {/* Comment and Reactions Section */}
-                           <div className="flex gap-6 mt-4">
-                               <Comment post={post} comment_list={post.comments} />
-                           </div>
-                       </div>
+                       <PostCard post={post}/>
                    ))
                )}
            </div>

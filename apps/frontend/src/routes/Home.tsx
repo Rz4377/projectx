@@ -6,18 +6,18 @@ export default function Home() {
 
   return (
     <div
-      className="flex flex-col dark:bg-gray-900 bg-gray-100 h-full"
+      className="flex flex-col dark:bg-gray-900 bg-gray-100 h-screen"
     >
       <div
-        className="flex flex-col md:flex-row  w-full mt-20 px-4 md:px-8"
+        className="flex flex-col md:flex-row mr-24 w-full  px-4 md:px-8"
       >
-        <div className="md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 dark:text-white text-gray-800">
-            <span className="text-green-500">Create</span> Teams, Implement
+        <div className="md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left mt-28">
+          <h1 className="text-4xl md:text-6xl mb-6 dark:text-white text-gray-800 font-extrabold ">
+            <span className="text-green-500 font-nunito">Create</span> Teams, Implement
             Projects, and <span className="text-blue-500">Share</span > with the
             World
           </h1>
-          <p className="mb-8 text-lg text-gray-600">
+          <p className="mb-8 text-lg text-gray-400 font-mono">
             Collaborate with others, bring your ideas to life, and showcase your work to a global audience.
           </p>
           <div className="flex flex-col md:flex-row md:space-x-4">
@@ -36,7 +36,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="md:w-1/2 mt-8 md:mt-0 flex justify-center">
+        <div className="md:w-1/2 mt-8 md:mt-12 flex justify-center">
           <div className="w-full max-w-md">
             <SlideShow />
           </div>
